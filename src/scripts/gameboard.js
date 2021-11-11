@@ -1,6 +1,6 @@
-const ship = require("./ship");
+const Ship = require("./ship");
 
-function gameboard() {
+function Gameboard() {
   return {
     fleet: [],
     boardPositions: {
@@ -13,9 +13,11 @@ function gameboard() {
       a7: false,
     },
     missedShots: [],
+    fleetStatus: [],
+    demo: null,
 
     placeShip(coords) {
-      const newShip = ship(coords);
+      const newShip = Ship(coords);
 
       newShip.coords.forEach((coord) => {
         const posArray = Object.keys(this.boardPositions);
@@ -40,8 +42,23 @@ function gameboard() {
       if (!hit) {
         this.missedShots.push(pos);
       }
+      this.demo = pos;
+    },
+
+    checkFleetStatus() {
+      this.fleetStatus = [];
+
+      this.fleet.forEach((ship) => {
+        if (ship.status === "sunk") {
+          this.fleetStatus.push("sunk");
+        }
+      });
+
+      // if (this.fleetStatus.length === this.fleet.length) {
+      //   alert("everything is sunk");
+      // }
     },
   };
 }
 
-module.exports = gameboard;
+module.exports = Gameboard;

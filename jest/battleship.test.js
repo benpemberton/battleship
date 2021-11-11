@@ -1,8 +1,10 @@
-const ship = require("./../src/scripts/ship");
-const gameboard = require("./../src/scripts/gameboard");
+const Ship = require("./../src/scripts/ship");
+const Gameboard = require("./../src/scripts/gameboard");
+const game = require("./../src/scripts/game");
+const Player = require("./../src/scripts/player");
 
 test.skip("check ship is created properly", () => {
-  expect(ship(["a1", "a2", "a3"])).toEqual({
+  expect(Ship(["a1", "a2", "a3"])).toEqual({
     coords: ["a1", "a2", "a3"],
     length: 3,
     hits: [],
@@ -11,14 +13,14 @@ test.skip("check ship is created properly", () => {
 });
 
 test.skip("check hit method identifies own coord", () => {
-  const testShip = ship(["b5", "c6", "d1"]);
+  const testShip = Ship(["b5", "c6", "d1"]);
   testShip.hit("c6");
 
   expect(testShip.hits).toEqual(["c6"]);
 });
 
 test.skip("check hit method doesn't duplicate", () => {
-  const testShip = ship(["b5", "c6", "d1"]);
+  const testShip = Ship(["b5", "c6", "d1"]);
   testShip.hit("c6");
   testShip.hit("c6");
 
@@ -26,7 +28,7 @@ test.skip("check hit method doesn't duplicate", () => {
 });
 
 test.skip("check sunk method", () => {
-  const testShip = ship(["b5", "c6", "d1"]);
+  const testShip = Ship(["b5", "c6", "d1"]);
   testShip.hit("c6");
   testShip.hit("b5");
   testShip.hit("d1");
@@ -37,7 +39,7 @@ test.skip("check sunk method", () => {
 });
 
 test.skip("gameboard records ship coords as filled", () => {
-  const playerBoard = gameboard();
+  const playerBoard = Gameboard();
   playerBoard.placeShip(["a1", "a6", "a7"]);
 
   expect(playerBoard.boardPositions).toEqual({
@@ -52,7 +54,7 @@ test.skip("gameboard records ship coords as filled", () => {
 });
 
 test.skip("gameboard populates fleet array", () => {
-  const playerBoard = gameboard();
+  const playerBoard = Gameboard();
   playerBoard.placeShip(["a1", "a6", "a7"]);
   playerBoard.placeShip(["a2", "a3"]);
 
@@ -75,8 +77,8 @@ test.skip("gameboard populates fleet array", () => {
   });
 });
 
-test("receiveAttack finds ship, calls hit", () => {
-  const playerBoard = gameboard();
+test.skip("receiveAttack finds ship, calls hit", () => {
+  const playerBoard = Gameboard();
   playerBoard.placeShip(["a1", "a6", "a7"]);
   playerBoard.placeShip(["a2", "a3"]);
 
@@ -101,12 +103,49 @@ test("receiveAttack finds ship, calls hit", () => {
   });
 });
 
-test("receiveAttack registers missed shot", () => {
-  const playerBoard = gameboard();
+test.skip("receiveAttack registers missed shot", () => {
+  const playerBoard = Gameboard();
   playerBoard.placeShip(["a1", "a6", "a7"]);
   playerBoard.placeShip(["a2", "a3"]);
 
   playerBoard.receiveAttack("a4");
 
-  expect(playerBoard.missedShots).toEqual(["a4"]);
+  expect(playerBoard.missedShots).toStrictEqual(["a4"]);
+});
+
+test.skip("checkFleetStatus records sunken ships", () => {
+  const playerBoard = Gameboard();
+  playerBoard.placeShip(["a1", "a6", "a7"]);
+  playerBoard.placeShip(["a2", "a3"]);
+
+  playerBoard.receiveAttack("a1");
+  playerBoard.receiveAttack("a6");
+  playerBoard.receiveAttack("a7");
+  playerBoard.receiveAttack("a2");
+  playerBoard.receiveAttack("a3");
+
+  playerBoard.fleet.forEach((ship) => {
+    ship.isSunk();
+  });
+
+  playerBoard.checkFleetStatus();
+
+  expect(playerBoard.fleetStatus).toStrictEqual(["sunk", "sunk"]);
+});
+
+test.skip("comp player makes legal move", () => {
+  const human = Player("human");
+  const computer = Player("computer");
+
+  game.user.placeShip(["a1", "a6", "a7"]);
+  game.user.placeShip(["a2", "a3"]);
+
+  game.user.receiveAttack("a1");
+  game.user.receiveAttack("a6");
+  game.user.receiveAttack("a7");
+  game.user.receiveAttack("a2");
+  game.user.receiveAttack("a3");
+
+  computer.sendAttack("a3");
+  expect(game.user.demo).toStrictEqual("1");
 });

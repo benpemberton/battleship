@@ -1,4 +1,4 @@
-function ship(coords) {
+function Ship(coords) {
   return {
     coords: coords,
     length: coords.length,
@@ -23,4 +23,4 @@ function ship(coords) {
   };
 }
 
-module.exports = ship;
+module.exports = Ship;
