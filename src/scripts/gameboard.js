@@ -1,4 +1,4 @@
-const Ship = require("./ship");
+import Ship from "./ship";
 
 function Gameboard() {
   return {
@@ -14,7 +14,6 @@ function Gameboard() {
     },
     missedShots: [],
     fleetStatus: [],
-    demo: null,
 
     placeShip(coords) {
       const newShip = Ship(coords);
@@ -61,4 +60,4 @@ function Gameboard() {
   };
 }
 
-module.exports = Gameboard;
+export default Gameboard;

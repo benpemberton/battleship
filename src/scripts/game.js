@@ -1,8 +1,8 @@
-const Gameboard = require("./gameboard");
+import Gameboard from "./gameboard";
 
 const game = {
   user: Gameboard(),
   comp: Gameboard(),
 };
 
-module.exports = game;
+export default game;

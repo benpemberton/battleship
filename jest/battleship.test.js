@@ -1,7 +1,7 @@
-const Ship = require("./../src/scripts/ship");
-const Gameboard = require("./../src/scripts/gameboard");
-const game = require("./../src/scripts/game");
-const Player = require("./../src/scripts/player");
+import Ship from "./../src/scripts/ship";
+import Gameboard from "./../src/scripts/gameboard";
+import game from "./../src/scripts/game";
+import Player from "./../src/scripts/player";
 
 test.skip("check ship is created properly", () => {
   expect(Ship(["a1", "a2", "a3"])).toEqual({
@@ -13,10 +13,10 @@ test.skip("check ship is created properly", () => {
 });
 
 test.skip("check hit method identifies own coord", () => {
-  const testShip = Ship(["b5", "c6", "d1"]);
-  testShip.hit("c6");
+  const testShip = Ship(["20", "03", "86"]);
+  testShip.hit("03");
 
-  expect(testShip.hits).toEqual(["c6"]);
+  expect(testShip.hits).toEqual(["03"]);
 });
 
 test.skip("check hit method doesn't duplicate", () => {

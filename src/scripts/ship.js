@@ -23,4 +23,4 @@ function Ship(coords) {
   };
 }
 
-module.exports = Ship;
+export default Ship;
