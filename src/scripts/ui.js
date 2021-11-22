@@ -1,3 +1,51 @@
+import { startGame } from "./game";
+import { playerBoard, compBoard } from "./elements";
+
+function populateBoard(player, selector) {
+  const fleet = player.gameboard.fleet;
+
+  let board = null;
+
+  selector === ".player-board" ? (board = playerBoard) : (board = compBoard);
+
+  const cellPositions = getCellPositions(selector);
+
+  fleet.forEach((ship) => {
+    const div = document.createElement("div");
+    div.classList.add("ship");
+    div.style.position = "absolute";
+
+    const firstCo = [];
+
+    ship.coords.forEach((coord) => {
+      firstCo.push(coord[0]);
+    });
+
+    if (firstCo[0] === firstCo[1]) {
+      div.style.width = "50px";
+      div.style.height = ship.length * 50 + "px";
+    } else {
+      div.style.height = "50px";
+      div.style.width = ship.length * 50 + "px";
+    }
+
+    for (const prop in cellPositions) {
+      if (cellPositions[prop].coords == ship.coords[0]) {
+        div.style.top = cellPositions[prop].screenPos.top + "px";
+        div.style.left = cellPositions[prop].screenPos.left + "px";
+      }
+    }
+    board.appendChild(div);
+  });
+}
+
+function activateScreen() {
+  playerBoard.style.opacity = "1";
+  playerBoard.style.pointerEvents = "auto";
+  compBoard.style.opacity = "1";
+  compBoard.style.pointerEvents = "auto";
+}
+
 function dragElement(elmnt) {
   let pos1 = 0,
     pos2 = 0,
@@ -35,10 +83,10 @@ function dragElement(elmnt) {
   }
 }
 
-function gridSnap(elmnt) {
+function getCellPositions(selector) {
   const cellPositions = {};
 
-  const board = document.querySelector(".player-board .gameboard");
+  const board = document.querySelector(`${selector} .gameboard`);
 
   const cells = board.querySelectorAll(".grid-cell").forEach((cell, index) => {
     const cellObj = {};
@@ -46,6 +94,12 @@ function gridSnap(elmnt) {
     cellObj.coords = cell.dataset.x + cell.dataset.y;
     cellPositions[index] = cellObj;
   });
+
+  return cellPositions;
+}
+
+function gridSnap(elmnt) {
+  const cellPositions = getCellPositions(".player-board");
 
   const elmntPos = elmnt.getBoundingClientRect();
 
@@ -71,4 +125,4 @@ function gridSnap(elmnt) {
   }
 }
 
-export default dragElement;
+export { populateBoard, activateScreen, dragElement };

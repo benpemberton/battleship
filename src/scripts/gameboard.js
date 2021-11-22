@@ -3,26 +3,17 @@ import Ship from "./ship";
 function Gameboard() {
   return {
     fleet: [],
-    boardPositions: {
-      a1: false,
-      a2: false,
-      a3: false,
-      a4: false,
-      a5: false,
-      a6: false,
-      a7: false,
-    },
     missedShots: [],
     fleetStatus: [],
 
     placeShip(coords) {
       const newShip = Ship(coords);
 
-      newShip.coords.forEach((coord) => {
-        const posArray = Object.keys(this.boardPositions);
-        const position = posArray.find((pos) => pos === coord);
-        this.boardPositions[position] = true;
-      });
+      // newShip.coords.forEach((coord) => {
+      //   const posArray = Object.keys(this.boardPositions);
+      //   const position = posArray.find((pos) => pos === coord);
+      //   this.boardPositions[position] = true;
+      // });
 
       this.fleet.push(newShip);
     },

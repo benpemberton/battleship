@@ -130,15 +130,23 @@ table {
 
 /* MINE STARTS HERE */
 
+.title {
+  margin: 2% auto;
+  text-align: center;
+  font-size: 2em;
+}
+
 .boards-container {
   display: flex;
-  justify-content: space-evenly;
+  justify-content: space-around;
 }
 
 .player-board,
 .comp-board {
   height: 35vw;
   width: 35vw;
+  opacity: 0.3;
+  pointer-events: none;
 }
 
 .gameboard {
@@ -149,6 +157,14 @@ table {
   height: 80%;
   gap: 2px;
   background-color: blue;
+}
+
+.player-board .gameboard {
+  float: right;
+}
+
+.scores-box {
+  width: 15%;
 }
 
 .grid-cell {
@@ -162,4 +178,19 @@ table {
   background-color: red;
   grid-column: 1/4;
   grid-row: 1/2;
+}
+
+.name-input-container {
+  display: flex;
+  justify-content: center;
+}
+
+.start {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+}
+
+.ship {
+  background-color: green;
 }

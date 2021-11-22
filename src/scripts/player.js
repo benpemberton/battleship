@@ -1,10 +1,11 @@
-import game from "./game";
+import { game } from "./game";
 
 function Player(name) {
   if (name === "computer") {
     return {
       name,
       gamesWon: 0,
+      gameboard: null,
 
       sendAttack() {
         let coord = this.getCoord();
@@ -46,6 +47,7 @@ function Player(name) {
     return {
       name,
       gamesWon: 0,
+      gameboard: null,
     };
   }
 }

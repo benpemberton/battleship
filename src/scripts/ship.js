@@ -1,10 +1,5 @@
 function Ship(coords) {
-  return {
-    coords: coords,
-    length: coords.length,
-    hits: [],
-    status: "unsunk",
-
+  const proto = {
     hit(number) {
       if (this.coords.includes(number) && !this.hits.includes(number)) {
         this.hits.push(number);
@@ -21,6 +16,15 @@ function Ship(coords) {
       }
     },
   };
+
+  const obj = Object.create(proto);
+
+  obj.coords = coords;
+  obj.length = coords.length;
+  obj.hits = [];
+  obj.status = "unsunk";
+
+  return obj;
 }
 
 export default Ship;

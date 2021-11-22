@@ -16,7 +16,7 @@ test.skip("check hit method identifies own coord", () => {
   const testShip = Ship(["20", "03", "86"]);
   testShip.hit("03");
 
-  expect(testShip.hits).toEqual(["03"]);
+  expect(testShip.hits).toEqual(["3"]);
 });
 
 test.skip("check hit method doesn't duplicate", () => {
