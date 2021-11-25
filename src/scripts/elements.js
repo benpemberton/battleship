@@ -1,19 +1,25 @@
 const startBtn = document.querySelector(".start");
-const playerBoard = document.querySelector(".player-board");
-const compBoard = document.querySelector(".comp-board");
+const playerArea = document.querySelector(".player-board");
+const compArea = document.querySelector(".comp-board");
+const playerBoard = playerArea.querySelector(".gameboard");
+const compBoard = compArea.querySelector(".gameboard");
 const nameInput = document.querySelector(".name-input");
 const nameSubmitBtn = document.querySelector(".name-submit");
 const nameInputDiv = document.querySelector(".name-input-container");
 const playerName = document.querySelector(".player-name");
 const scoresBox = document.querySelector(".scores-box");
+const gridCell = document.querySelector(".grid-cell");
 
 export {
   startBtn,
   playerBoard,
   compBoard,
+  playerArea,
+  compArea,
   nameInput,
   nameSubmitBtn,
   nameInputDiv,
   playerName,
   scoresBox,
+  gridCell,
 };

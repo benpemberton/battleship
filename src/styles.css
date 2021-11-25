@@ -198,6 +198,11 @@ table {
 
 .ship {
   background-color: green;
+  transition: background-color 0.2s ease;
+}
+
+.invalid-pos {
+  background-color: red;
 }
 
 .ship-icon {

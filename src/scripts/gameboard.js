@@ -16,6 +16,7 @@ function Gameboard() {
       // });
 
       this.fleet.push(newShip);
+      this.fleet[this.fleet.length - 1].id = this.fleet.length - 1;
     },
 
     receiveAttack(pos) {

@@ -12,16 +12,16 @@ function startGame() {
   game.user.gameboard = Gameboard();
   game.comp.gameboard = Gameboard();
 
-  game.user.gameboard.placeShip(["49"]);
-  game.user.gameboard.placeShip(["37"]);
-  game.user.gameboard.placeShip(["55"]);
-  game.user.gameboard.placeShip(["99"]);
-  game.user.gameboard.placeShip(["17", "27"]);
-  game.user.gameboard.placeShip(["77", "78"]);
   game.user.gameboard.placeShip(["00", "10"]);
-  game.user.gameboard.placeShip(["41", "42", "43"]);
-  game.user.gameboard.placeShip(["81", "82", "83"]);
+  game.user.gameboard.placeShip(["60"]);
+  game.user.gameboard.placeShip(["22", "32", "42"]);
+  game.user.gameboard.placeShip(["82", "83", "84"]);
+  game.user.gameboard.placeShip(["06", "07"]);
+  game.user.gameboard.placeShip(["36", "46"]);
+  game.user.gameboard.placeShip(["87"]);
   game.user.gameboard.placeShip(["09", "19", "29", "39"]);
+  game.user.gameboard.placeShip(["69"]);
+  game.user.gameboard.placeShip(["99"]);
   game.comp.gameboard.placeShip(["00", "10", "20"]);
   game.comp.gameboard.placeShip(["41", "42", "43"]);
   game.comp.gameboard.placeShip(["81", "82", "83"]);

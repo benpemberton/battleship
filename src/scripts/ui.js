@@ -2,24 +2,29 @@ import { startGame, game } from "./game";
 import {
   playerBoard,
   compBoard,
+  playerArea,
+  compArea,
   nameInput,
   nameSubmitBtn,
   nameInputDiv,
   playerName,
   scoresBox,
+  gridCell,
 } from "./elements";
 
 function populateBoard(player) {
   const fleet = player.gameboard.fleet;
+  paintShips(fleet);
+}
 
-  let board = document.querySelector(player.selector);
+function paintShips(fleet) {
+  const cellPositions = getCellPositions();
 
-  const cellPositions = getCellPositions(player.selector);
-
-  fleet.forEach((ship) => {
+  fleet.forEach((ship, index) => {
     const div = document.createElement("div");
     div.classList.add("ship");
     div.style.position = "absolute";
+    div.dataset.id = index;
 
     const firstCo = [];
 
@@ -31,10 +36,10 @@ function populateBoard(player) {
 
     if (firstCo[0] === firstCo[1]) {
       div.style.width = divWidth + "px";
-      div.style.height = ship.length * divWidth + "px";
+      div.style.height = ship.length * divWidth + ship.length - 1 + "px";
     } else {
       div.style.height = divWidth + "px";
-      div.style.width = ship.length * divWidth + "px";
+      div.style.width = ship.length * divWidth + ship.length - 1 + "px";
     }
 
     for (const prop in cellPositions) {
@@ -43,8 +48,16 @@ function populateBoard(player) {
         div.style.left = cellPositions[prop].screenPos.left + "px";
       }
     }
-    board.appendChild(div);
+    playerArea.appendChild(div);
     dragElement(div);
+    rotateShip(div);
+  });
+}
+
+function clearShips() {
+  const ships = playerArea.querySelectorAll(".ship");
+  ships.forEach((ship) => {
+    ship.remove();
   });
 }
 
@@ -99,7 +112,7 @@ function displayScores() {
 }
 
 function positionFleet() {
-  activateElement(playerBoard);
+  activateElement(playerArea);
   populateBoard(game.user);
 }
 
@@ -110,6 +123,8 @@ function dragElement(elmnt) {
     pos4 = 0;
 
   elmnt.onmousedown = dragMouseDown;
+
+  const board = getBorder();
 
   function dragMouseDown(e) {
     e = e || window.event;
@@ -127,10 +142,80 @@ function dragElement(elmnt) {
     e.preventDefault();
     pos1 = pos3 - e.clientX;
     pos2 = pos4 - e.clientY;
+
     pos3 = e.clientX;
     pos4 = e.clientY;
-    elmnt.style.top = elmnt.offsetTop - pos2 + "px";
-    elmnt.style.left = elmnt.offsetLeft - pos1 + "px";
+
+    keepInBounds(e);
+  }
+
+  function checkDownDrag(e) {
+    if (e.clientY > pos4) {
+      return e.clientY - pos4;
+    } else {
+      return false;
+    }
+  }
+
+  function checkRightDrag(e) {
+    if (e.clientX > pos3) {
+      return e.clientX - pos3;
+    } else {
+      return false;
+    }
+  }
+
+  function checkLeftDrag(e) {
+    if (e.clientX < pos3) {
+      return pos3 - e.clientX;
+    } else {
+      return false;
+    }
+  }
+
+  function checkUpDrag(e) {
+    if (e.clientY < pos4) {
+      return pos4 - e.clientY;
+    } else {
+      return false;
+    }
+  }
+
+  function keepInBounds(e) {
+    if (!checkPosition(elmnt)) {
+      elmnt.style.top = elmnt.offsetTop - pos2 + "px";
+      elmnt.style.left = elmnt.offsetLeft - pos1 + "px";
+    } else if (checkPosition(elmnt) === "top") {
+      elmnt.style.top = board.top + checkDownDrag(e) + "px";
+      elmnt.style.left = elmnt.offsetLeft - pos1 + "px";
+    } else if (checkPosition(elmnt) === "left") {
+      elmnt.style.top = elmnt.offsetTop - pos2 + "px";
+      elmnt.style.left = board.left + checkRightDrag(e) + "px";
+    } else if (checkPosition(elmnt) === "right") {
+      elmnt.style.top = elmnt.offsetTop - pos2 + "px";
+      elmnt.style.left =
+        board.right - elmnt.offsetWidth - checkLeftDrag(e) + "px";
+    } else if (checkPosition(elmnt) === "bottom") {
+      elmnt.style.top =
+        board.bottom - elmnt.offsetHeight - checkUpDrag(e) + "px";
+      elmnt.style.left = elmnt.offsetLeft - pos1 + "px";
+    }
+  }
+
+  function checkPosition(elmnt) {
+    const elmntRect = elmnt.getBoundingClientRect();
+
+    if (elmntRect.top < board.top) {
+      return "top";
+    } else if (elmntRect.left < board.left) {
+      return "left";
+    } else if (elmntRect.right > board.right) {
+      return "right";
+    } else if (elmntRect.bottom > board.bottom) {
+      return "bottom";
+    } else {
+      return false;
+    }
   }
 
   function closeDragElement(elmnt) {
@@ -140,27 +225,111 @@ function dragElement(elmnt) {
   }
 }
 
-function getCellPositions(selector) {
+function rotateShip(elmnt) {
+  elmnt.ondblclick = rotate;
+
+  function rotate() {
+    const board = getBorder();
+
+    const elmntRect = elmnt.getBoundingClientRect();
+
+    const futureRight = elmntRect.left + elmntRect.height;
+    const futureBottom = elmntRect.top + elmntRect.width;
+
+    if (!(futureRight > board.right || futureBottom > board.bottom)) {
+      elmnt.style.width = elmntRect.height + "px";
+      elmnt.style.height = elmntRect.width + "px";
+      checkProximity(elmnt);
+    }
+  }
+}
+
+function checkProximity(elmnt) {
+  const elmntRect = elmnt.getBoundingClientRect();
+
+  const shipZones = getShipZones(elmnt);
+
+  for (const prop in shipZones) {
+    const topBound = shipZones[prop].top;
+    const leftBound = shipZones[prop].left;
+    const rightBound = shipZones[prop].right;
+    const bottomBound = shipZones[prop].bottom;
+
+    if (
+      (elmntRect.top < bottomBound &&
+        elmntRect.left < rightBound &&
+        elmntRect.top > topBound &&
+        elmntRect.left > leftBound) ||
+      (elmntRect.top < bottomBound &&
+        elmntRect.right < rightBound &&
+        elmntRect.top > topBound &&
+        elmntRect.right > leftBound) ||
+      (elmntRect.bottom < bottomBound &&
+        elmntRect.left < rightBound &&
+        elmntRect.bottom > topBound &&
+        elmntRect.left > leftBound) ||
+      (elmntRect.bottom < bottomBound &&
+        elmntRect.right < rightBound &&
+        elmntRect.bottom > topBound &&
+        elmntRect.right > leftBound)
+    ) {
+      elmnt.classList.add("invalid-pos");
+
+      break;
+    } else {
+      elmnt.classList.remove("invalid-pos");
+    }
+  }
+}
+
+function getBorder() {
+  const info = playerBoard.getBoundingClientRect();
+  return {
+    top: Math.round(info.top),
+    left: Math.round(info.left),
+    right: Math.round(info.right),
+    bottom: Math.round(info.bottom),
+  };
+}
+
+function getCellPositions() {
   const cellPositions = {};
 
-  const board = document.querySelector(`${selector} .gameboard`);
-
-  const cells = board.querySelectorAll(".grid-cell").forEach((cell, index) => {
-    const cellObj = {};
-    cellObj.screenPos = cell.getBoundingClientRect();
-    cellObj.coords = cell.dataset.x + cell.dataset.y;
-    cellPositions[index] = cellObj;
-  });
+  const cells = playerBoard
+    .querySelectorAll(".grid-cell")
+    .forEach((cell, index) => {
+      const cellObj = {};
+      cellObj.screenPos = cell.getBoundingClientRect();
+      cellObj.coords = cell.dataset.x + cell.dataset.y;
+      cellPositions[index] = cellObj;
+    });
 
   return cellPositions;
+}
+
+function getShipZones(elmnt) {
+  const shipPositions = {};
+
+  const cellBuffer = gridCell.offsetWidth;
+
+  playerArea.querySelectorAll(".ship").forEach((ship, index) => {
+    if (ship.dataset.id !== elmnt.dataset.id) {
+      const shipObj = {};
+      const shipDivPos = ship.getBoundingClientRect();
+      shipObj.top = shipDivPos.top - cellBuffer;
+      shipObj.left = shipDivPos.left - cellBuffer;
+      shipObj.right = shipDivPos.right + cellBuffer;
+      shipObj.bottom = shipDivPos.bottom + cellBuffer;
+      shipPositions[index] = shipObj;
+    }
+  });
+  return shipPositions;
 }
 
 function gridSnap(elmnt) {
   const cellPositions = getCellPositions(".player-board");
 
   const elmntPos = elmnt.getBoundingClientRect();
-
-  let elmntCoords;
 
   for (const prop in cellPositions) {
     const xLower = cellPositions[prop].screenPos.x - 25;
@@ -174,11 +343,13 @@ function gridSnap(elmnt) {
       elmntPos.x <= xLimit &&
       elmntPos.y <= yLimit
     ) {
-      elmntCoords = cellPositions[prop].coords;
-      console.log(elmntCoords);
-
       elmnt.style.top = cellPositions[prop].screenPos.top + "px";
       elmnt.style.left = cellPositions[prop].screenPos.left + "px";
+
+      elmnt.dataset.x = cellPositions[prop].coords[0];
+      elmnt.dataset.y = cellPositions[prop].coords[1];
+
+      checkProximity(elmnt);
     }
   }
 }
@@ -189,4 +360,6 @@ export {
   dragElement,
   renderFleet,
   userNameInput,
+  paintShips,
+  clearShips,
 };

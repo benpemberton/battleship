@@ -7,6 +7,8 @@ import {
   dragElement,
   renderFleet,
   userNameInput,
+  paintShips,
+  clearShips,
 } from "./ui";
 
 startBtn.addEventListener("click", () => {
@@ -16,3 +18,10 @@ startBtn.addEventListener("click", () => {
   renderFleet(game.user);
   renderFleet(game.comp);
 });
+
+window.onresize = thing;
+
+function thing() {
+  clearShips();
+  paintShips(game.user.gameboard.fleet);
+}
