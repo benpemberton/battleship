@@ -1,14 +1,18 @@
 import "./../styles.css";
 import { game, startGame } from "./game";
 import { startBtn, playerBoard, compBoard } from "./elements";
-import { populateBoard, activateScreen, dragElement } from "./ui";
-
-dragElement(document.querySelector(".testdiv"));
+import {
+  populateBoard,
+  activateElement,
+  dragElement,
+  renderFleet,
+  userNameInput,
+} from "./ui";
 
 startBtn.addEventListener("click", () => {
   startBtn.style.display = "none";
   startGame();
-  activateScreen();
-  populateBoard(game.user, ".player-board");
-  populateBoard(game.comp, ".comp-board");
+  userNameInput();
+  renderFleet(game.user);
+  renderFleet(game.comp);
 });

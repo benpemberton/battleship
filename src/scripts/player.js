@@ -6,6 +6,7 @@ function Player(name) {
       name,
       gamesWon: 0,
       gameboard: null,
+      selector: ".comp-board",
 
       sendAttack() {
         let coord = this.getCoord();
@@ -48,6 +49,7 @@ function Player(name) {
       name,
       gamesWon: 0,
       gameboard: null,
+      selector: ".player-board",
     };
   }
 }

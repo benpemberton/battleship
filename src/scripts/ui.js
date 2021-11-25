@@ -1,14 +1,20 @@
-import { startGame } from "./game";
-import { playerBoard, compBoard } from "./elements";
+import { startGame, game } from "./game";
+import {
+  playerBoard,
+  compBoard,
+  nameInput,
+  nameSubmitBtn,
+  nameInputDiv,
+  playerName,
+  scoresBox,
+} from "./elements";
 
-function populateBoard(player, selector) {
+function populateBoard(player) {
   const fleet = player.gameboard.fleet;
 
-  let board = null;
+  let board = document.querySelector(player.selector);
 
-  selector === ".player-board" ? (board = playerBoard) : (board = compBoard);
-
-  const cellPositions = getCellPositions(selector);
+  const cellPositions = getCellPositions(player.selector);
 
   fleet.forEach((ship) => {
     const div = document.createElement("div");
@@ -17,16 +23,18 @@ function populateBoard(player, selector) {
 
     const firstCo = [];
 
+    const divWidth = document.querySelector(".grid-cell").offsetWidth;
+
     ship.coords.forEach((coord) => {
       firstCo.push(coord[0]);
     });
 
     if (firstCo[0] === firstCo[1]) {
-      div.style.width = "50px";
-      div.style.height = ship.length * 50 + "px";
+      div.style.width = divWidth + "px";
+      div.style.height = ship.length * divWidth + "px";
     } else {
-      div.style.height = "50px";
-      div.style.width = ship.length * 50 + "px";
+      div.style.height = divWidth + "px";
+      div.style.width = ship.length * divWidth + "px";
     }
 
     for (const prop in cellPositions) {
@@ -36,14 +44,63 @@ function populateBoard(player, selector) {
       }
     }
     board.appendChild(div);
+    dragElement(div);
   });
 }
 
-function activateScreen() {
-  playerBoard.style.opacity = "1";
-  playerBoard.style.pointerEvents = "auto";
-  compBoard.style.opacity = "1";
-  compBoard.style.pointerEvents = "auto";
+function renderFleet(player) {
+  let board = document.querySelector(player.selector);
+
+  player.gameboard.fleet.forEach((ship) => {
+    const shipDiv = document.createElement("div");
+    shipDiv.classList.add("ship-icon");
+    shipDiv.style.height = "5px";
+    shipDiv.style.width = ship.length * 5 + "px";
+
+    board.querySelector(`[data-length='${ship.length}']`).appendChild(shipDiv);
+  });
+}
+
+function activateElement(element) {
+  element.style.opacity = "1";
+  element.style.pointerEvents = "auto";
+}
+
+function deactivateElement(element) {
+  element.style.opacity = "0.3";
+  element.style.pointerEvents = "none";
+}
+
+function userNameInput() {
+  activateElement(nameInputDiv);
+  nameInput.style.boxShadow = "0px 0px 6px 3px black";
+  nameSubmitBtn.addEventListener("click", () => {
+    if (nameInput.value === "") {
+      nameInput.style.backgroundColor = "#E8B4DC";
+    } else {
+      const p = playerName.querySelector("p");
+      console.log(p);
+      p.textContent = nameInput.value;
+      nameInput.value = null;
+      nameInputDiv.style.display = "none";
+      gameSetUp();
+    }
+  });
+}
+
+function gameSetUp() {
+  displayScores();
+  positionFleet();
+}
+
+function displayScores() {
+  const scores = scoresBox.querySelector("p");
+  scores.textContent = game.user.gamesWon + " - " + game.comp.gamesWon;
+}
+
+function positionFleet() {
+  activateElement(playerBoard);
+  populateBoard(game.user);
 }
 
 function dragElement(elmnt) {
@@ -118,6 +175,7 @@ function gridSnap(elmnt) {
       elmntPos.y <= yLimit
     ) {
       elmntCoords = cellPositions[prop].coords;
+      console.log(elmntCoords);
 
       elmnt.style.top = cellPositions[prop].screenPos.top + "px";
       elmnt.style.left = cellPositions[prop].screenPos.left + "px";
@@ -125,4 +183,10 @@ function gridSnap(elmnt) {
   }
 }
 
-export { populateBoard, activateScreen, dragElement };
+export {
+  populateBoard,
+  activateElement,
+  dragElement,
+  renderFleet,
+  userNameInput,
+};

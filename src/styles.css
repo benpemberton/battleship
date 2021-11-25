@@ -143,10 +143,12 @@ table {
 
 .player-board,
 .comp-board {
+  display: flex;
   height: 35vw;
   width: 35vw;
   opacity: 0.3;
   pointer-events: none;
+  flex-wrap: wrap;
 }
 
 .gameboard {
@@ -155,12 +157,13 @@ table {
   grid-template-rows: repeat(10, 1fr);
   width: 80%;
   height: 80%;
-  gap: 2px;
+  flex: 1 1 80%;
+  gap: 1px;
   background-color: blue;
 }
 
-.player-board .gameboard {
-  float: right;
+.fleet {
+  flex: 1 20%;
 }
 
 .scores-box {
@@ -183,6 +186,8 @@ table {
 .name-input-container {
   display: flex;
   justify-content: center;
+  pointer-events: none;
+  opacity: 0.3;
 }
 
 .start {
@@ -193,4 +198,21 @@ table {
 
 .ship {
   background-color: green;
+}
+
+.ship-icon {
+  background-color: blue;
+  opacity: 0.5;
+}
+
+.comp-name,
+.player-name {
+  flex: 1 1 80%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: grey;
+  color: white;
+  border-radius: 10px;
+  font-size: 2em;
 }
