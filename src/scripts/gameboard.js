@@ -5,6 +5,7 @@ function Gameboard() {
     fleet: [],
     missedShots: [],
     fleetStatus: [],
+    demo: null,
 
     placeShip(coords) {
       const newShip = Ship(coords);

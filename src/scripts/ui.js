@@ -1,4 +1,4 @@
-import { startGame, game } from "./game";
+import { startGame, game, getRandomInt } from "./game";
 import {
   playerBoard,
   compBoard,
@@ -10,6 +10,8 @@ import {
   playerName,
   scoresBox,
   gridCell,
+  instructions,
+  playBtn,
 } from "./elements";
 
 function populateBoard(player) {
@@ -92,7 +94,6 @@ function userNameInput() {
       nameInput.style.backgroundColor = "#E8B4DC";
     } else {
       const p = playerName.querySelector("p");
-      console.log(p);
       p.textContent = nameInput.value;
       nameInput.value = null;
       nameInputDiv.style.display = "none";
@@ -104,6 +105,7 @@ function userNameInput() {
 function gameSetUp() {
   displayScores();
   positionFleet();
+  createCompFleet();
 }
 
 function displayScores() {
@@ -113,7 +115,94 @@ function displayScores() {
 
 function positionFleet() {
   activateElement(playerArea);
+  instrMsg();
   populateBoard(game.user);
+  playButton();
+}
+
+function playButton() {
+  playBtn.style.display = "block";
+  playBtn.addEventListener("click", playBtnHandler);
+}
+
+function playBtnHandler() {
+  if (!checkForRed()) {
+    game.user.gameboard.fleet = [];
+    getNewFleetCoords();
+    console.log(game.user.gameboard.fleet);
+  } else if (checkForRed()) {
+    alert("All ships must be green!");
+  }
+}
+
+function getNewFleetCoords() {
+  const ships = document.querySelectorAll(".ship");
+  const cells = getCellPositions();
+
+  ships.forEach((ship) => {
+    let coords;
+    const shipDivPos = ship.getBoundingClientRect();
+    for (const prop in cells) {
+      if (
+        shipDivPos.left === cells[prop].screenPos.left &&
+        shipDivPos.top === cells[prop].screenPos.top
+      ) {
+        coords = cells[prop].coords;
+        break;
+      }
+    }
+
+    if (shipDivPos.height === shipDivPos.width) {
+      game.user.gameboard.placeShip([coords]);
+    } else {
+      coords = getRectShipCoords(coords, shipDivPos);
+      game.user.gameboard.placeShip(coords);
+    }
+  });
+}
+
+function getRectShipCoords(coords, ship) {
+  const cellWidth = gridCell.offsetWidth;
+  let axis;
+  let length;
+  let fullCoords = [coords];
+
+  if (ship.height > ship.width) {
+    axis = 1;
+    length = Math.round(ship.height / cellWidth);
+  } else {
+    axis = 0;
+    length = Math.round(ship.width / cellWidth);
+  }
+
+  for (let i = 0; i < length - 1; i++) {
+    let x = fullCoords[fullCoords.length - 1][0];
+    let y = fullCoords[fullCoords.length - 1][1];
+    let newCoord;
+
+    let num = Number(fullCoords[fullCoords.length - 1][axis]);
+    num == x ? (newCoord = (num += 1) + y) : (newCoord = x + (num += 1));
+    fullCoords.push(newCoord);
+  }
+  return fullCoords;
+}
+
+function checkForRed() {
+  let ship = document.querySelector(".invalid-pos");
+
+  if (ship) {
+    return true;
+  } else {
+    return false;
+  }
+}
+
+function instrMsg() {
+  instructions.innerHTML =
+    "<p>Arrange your ships in preparation for a naval battle!</p>";
+  instructions.innerHTML +=
+    "<p>The ships must all be green before you can start the game.</p>";
+  instructions.innerHTML += "<p>(Double-click to rotate a ship.)</p>";
 }
 
 function dragElement(elmnt) {
@@ -236,7 +325,7 @@ function rotateShip(elmnt) {
     const futureRight = elmntRect.left + elmntRect.height;
     const futureBottom = elmntRect.top + elmntRect.width;
 
-    if (!(futureRight > board.right || futureBottom > board.bottom)) {
+    if (!(futureRight - 1 > board.right || futureBottom - 1 > board.bottom)) {
       elmnt.style.width = elmntRect.height + "px";
       elmnt.style.height = elmntRect.width + "px";
       checkProximity(elmnt);

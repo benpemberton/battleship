@@ -9,6 +9,8 @@ const nameInputDiv = document.querySelector(".name-input-container");
 const playerName = document.querySelector(".player-name");
 const scoresBox = document.querySelector(".scores-box");
 const gridCell = document.querySelector(".grid-cell");
+const instructions = document.querySelector(".instructions");
+const playBtn = document.querySelector(".play");
 
 export {
   startBtn,
@@ -22,4 +24,6 @@ export {
   playerName,
   scoresBox,
   gridCell,
+  instructions,
+  playBtn,
 };

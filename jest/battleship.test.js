@@ -1,6 +1,6 @@
 import Ship from "./../src/scripts/ship";
 import Gameboard from "./../src/scripts/gameboard";
-import game from "./../src/scripts/game";
+import { game } from "./../src/scripts/game";
 import Player from "./../src/scripts/player";
 
 test.skip("check ship is created properly", () => {
@@ -134,18 +134,37 @@ test.skip("checkFleetStatus records sunken ships", () => {
 });
 
 test.skip("comp player makes legal move", () => {
-  const human = Player("human");
+  game.user = Player("placeholder");
+  game.comp = Player("computer");
+
+  game.user.gameboard = Gameboard();
+  game.comp.gameboard = Gameboard();
+
+  game.user.gameboard.placeShip(["a1", "a6", "a7"]);
+  game.user.gameboard.placeShip(["a2", "a3"]);
+
+  game.user.gameboard.receiveAttack("a1");
+  game.user.gameboard.receiveAttack("a6");
+  game.user.gameboard.receiveAttack("a7");
+  game.user.gameboard.receiveAttack("a2");
+  game.user.gameboard.receiveAttack("a3");
+
+  game.comp.sendAttack("a3");
+  expect(game.user.gameboard.demo).toStrictEqual("1");
+});
+
+test.skip("comp creates fleet ship coords", () => {
   const computer = Player("computer");
 
-  game.user.placeShip(["a1", "a6", "a7"]);
-  game.user.placeShip(["a2", "a3"]);
+  computer.createFleet();
 
-  game.user.receiveAttack("a1");
-  game.user.receiveAttack("a6");
-  game.user.receiveAttack("a7");
-  game.user.receiveAttack("a2");
-  game.user.receiveAttack("a3");
+  expect(computer.demo).toEqual(["01", "91"]);
+});
 
-  computer.sendAttack("a3");
-  expect(game.user.demo).toStrictEqual("1");
+test("comp checks ship spacing", () => {
+  const computer = Player("computer");
+
+  computer.createFleet();
+
+  expect(computer.demo).toEqual(["01", "91"]);
 });

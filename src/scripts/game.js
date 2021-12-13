@@ -6,6 +6,10 @@ const game = {
   comp: null,
 };
 
+function getRandomInt(factor) {
+  return Math.floor(Math.random() * factor);
+}
+
 function startGame() {
   game.user = Player("placeholder");
   game.comp = Player("computer");
@@ -27,4 +31,4 @@ function startGame() {
   game.comp.gameboard.placeShip(["81", "82", "83"]);
 }
 
-export { game, startGame };
+export { game, startGame, getRandomInt };
