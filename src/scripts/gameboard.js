@@ -5,10 +5,11 @@ function Gameboard() {
     fleet: [],
     missedShots: [],
     fleetStatus: [],
+
     demo: null,
 
-    placeShip(coords) {
-      const newShip = Ship(coords);
+    placeShip(name, coords) {
+      const newShip = Ship(name, coords);
 
       // newShip.coords.forEach((coord) => {
       //   const posArray = Object.keys(this.boardPositions);

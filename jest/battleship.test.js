@@ -161,10 +161,19 @@ test.skip("comp creates fleet ship coords", () => {
   expect(computer.demo).toEqual(["01", "91"]);
 });
 
-test("comp checks ship spacing", () => {
+test.skip("comp checks ship spacing", () => {
   const computer = Player("computer");
 
   computer.createFleet();
 
   expect(computer.demo).toEqual(["01", "91"]);
+});
+
+test("multi-use demo", () => {
+  const comp = Player("computer");
+  comp.gameboard = Gameboard();
+
+  comp.createFleet();
+
+  expect(comp.gameboard.fleet).toEqual(["a"]);
 });

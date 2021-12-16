@@ -1,4 +1,4 @@
-function Ship(coords) {
+function Ship(name, coords) {
   const proto = {
     hit(number) {
       if (this.coords.includes(number) && !this.hits.includes(number)) {
@@ -19,6 +19,7 @@ function Ship(coords) {
 
   const obj = Object.create(proto);
 
+  obj.name = name;
   obj.coords = coords;
   obj.length = coords.length;
   obj.hits = [];
