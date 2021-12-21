@@ -39,7 +39,6 @@ function Player(name) {
     },
 
     createFleet() {
-      let fleet = [];
       let self = this;
 
       generateShipCoords("carrier", 5);
@@ -47,6 +46,8 @@ function Player(name) {
       generateShipCoords("cruiser", 3);
       generateShipCoords("submarine", 3);
       generateShipCoords("destroyer", 2);
+
+      console.log(game.user.gameboard.fleet);
 
       function generateShipCoords(name, length) {
         const axis = self.getRandomInt(2);
@@ -69,9 +70,11 @@ function Player(name) {
             ? (newCoord = (num += 1) + coord[coord.length - 1][sameAxis])
             : (newCoord = coord[coord.length - 1][sameAxis] + (num += 1));
 
-          self.checkForDuplicate(newCoord)
-            ? generateShipCoords(name, length)
-            : coord.push(newCoord);
+          if (self.checkForDuplicate(newCoord)) {
+            return generateShipCoords(name, length);
+          } else {
+            coord.push(newCoord);
+          }
         }
         self.gameboard.placeShip(name, coord);
       }
@@ -106,7 +109,6 @@ function Player(name) {
   obj.name = name;
   obj.gamesWon = 0;
   obj.gameboard = null;
-  obj.trackGrid = null;
 
   return obj;
 }

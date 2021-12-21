@@ -27,6 +27,7 @@ function paintShips(fleet) {
     div.classList.add("ship");
     div.style.position = "absolute";
     div.dataset.id = index;
+    div.dataset.coords = JSON.stringify(ship.coords);
 
     const firstCo = [];
 
@@ -389,7 +390,7 @@ function getCellPositions() {
     .forEach((cell, index) => {
       const cellObj = {};
       cellObj.screenPos = cell.getBoundingClientRect();
-      cellObj.coords = cell.dataset.x + cell.dataset.y;
+      cellObj.coords = cell.dataset.xy;
       cellPositions[index] = cellObj;
     });
 
@@ -399,16 +400,14 @@ function getCellPositions() {
 function getShipZones(elmnt) {
   const shipPositions = {};
 
-  const cellBuffer = gridCell.offsetWidth;
-
   playerArea.querySelectorAll(".ship").forEach((ship, index) => {
     if (ship.dataset.id !== elmnt.dataset.id) {
       const shipObj = {};
       const shipDivPos = ship.getBoundingClientRect();
-      shipObj.top = shipDivPos.top - cellBuffer;
-      shipObj.left = shipDivPos.left - cellBuffer;
-      shipObj.right = shipDivPos.right + cellBuffer;
-      shipObj.bottom = shipDivPos.bottom + cellBuffer;
+      shipObj.top = shipDivPos.top;
+      shipObj.left = shipDivPos.left;
+      shipObj.right = shipDivPos.right;
+      shipObj.bottom = shipDivPos.bottom;
       shipPositions[index] = shipObj;
     }
   });
