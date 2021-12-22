@@ -15,8 +15,8 @@ startBtn.addEventListener("click", () => {
   startBtn.style.display = "none";
   startGame();
   userNameInput();
-  renderFleet(game.user);
-  renderFleet(game.comp);
+//   renderFleet(game.user);
+//   renderFleet(game.comp);
 });
 
 window.onresize = thing;

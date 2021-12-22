@@ -28,6 +28,7 @@ function paintShips(fleet) {
     div.style.position = "absolute";
     div.dataset.id = index;
     div.dataset.coords = JSON.stringify(ship.coords);
+    div.dataset.name = ship.name;
 
     const firstCo = [];
 
@@ -42,7 +43,7 @@ function paintShips(fleet) {
       div.style.height = ship.length * divWidth + ship.length - 1 + "px";
     } else {
       div.style.height = divWidth + "px";
-      div.style.width = ship.length * divWidth + ship.length - 1 + "px";
+      div.style.width = ship.length * divWidth + ship.length - 1 +"px";
     }
 
     for (const prop in cellPositions) {
@@ -106,7 +107,6 @@ function userNameInput() {
 function gameSetUp() {
   displayScores();
   positionFleet();
-  createCompFleet();
 }
 
 function displayScores() {
@@ -128,64 +128,67 @@ function playButton() {
 
 function playBtnHandler() {
   if (!checkForRed()) {
-    game.user.gameboard.fleet = [];
-    getNewFleetCoords();
+    game.user.updateFleet(getDisplayFleetInfo());
     console.log(game.user.gameboard.fleet);
   } else if (checkForRed()) {
     alert("All ships must be green!");
   }
 }
 
-function getNewFleetCoords() {
-  const ships = document.querySelectorAll(".ship");
-  const cells = getCellPositions();
+function getDisplayFleetInfo() {
+    const ships = document.querySelectorAll(".ship");
+    const fleetCoords = {};
+  
+    ships.forEach((ship, index) => {      
+        const shipObj = {};
+        shipObj.coords = JSON.parse(ship.dataset.coords);
+        shipObj.id = ship.dataset.id;
+        shipObj.name = ship.dataset.name;
+        fleetCoords[index] = shipObj;
+    });
 
-  ships.forEach((ship) => {
+    return fleetCoords;
+  }
+
+function getShipCoords(elmnt) {
+    const cells = getCellPositions();
+    const ship = elmnt.getBoundingClientRect();
     let coords;
-    const shipDivPos = ship.getBoundingClientRect();
+
     for (const prop in cells) {
-      if (
-        shipDivPos.left === cells[prop].screenPos.left &&
-        shipDivPos.top === cells[prop].screenPos.top
-      ) {
+        if (
+        ship.left === cells[prop].screenPos.left &&
+        ship.top === cells[prop].screenPos.top
+        ) {
         coords = cells[prop].coords;
         break;
-      }
+        }
     }
 
-    if (shipDivPos.height === shipDivPos.width) {
-      game.user.gameboard.placeShip([coords]);
+    const cellWidth = gridCell.offsetWidth;
+    let axis;
+    let length;
+    let fullCoords = [coords];
+
+    if (ship.height > ship.width) {
+        axis = 1;
+        length = Math.round(ship.height / cellWidth);
     } else {
-      coords = getRectShipCoords(coords, shipDivPos);
-      game.user.gameboard.placeShip(coords);
+        axis = 0;
+        length = Math.round(ship.width / cellWidth);
     }
-  });
-}
 
-function getRectShipCoords(coords, ship) {
-  const cellWidth = gridCell.offsetWidth;
-  let axis;
-  let length;
-  let fullCoords = [coords];
+    let sameAxis;
 
-  if (ship.height > ship.width) {
-    axis = 1;
-    length = Math.round(ship.height / cellWidth);
-  } else {
-    axis = 0;
-    length = Math.round(ship.width / cellWidth);
-  }
+    axis == 0 ? sameAxis = 1 : sameAxis = 0;
 
-  for (let i = 0; i < length - 1; i++) {
-    let x = fullCoords[fullCoords.length - 1][0];
-    let y = fullCoords[fullCoords.length - 1][1];
-    let newCoord;
-
-    let num = Number(fullCoords[fullCoords.length - 1][axis]);
-    num == x ? (newCoord = (num += 1) + y) : (newCoord = x + (num += 1));
-    fullCoords.push(newCoord);
-  }
-  return fullCoords;
+    for (let i = 0; i < length - 1; i++) {
+        let newCoord;
+        let num = Number(fullCoords[fullCoords.length - 1][axis]);
+        axis == 0 ? (newCoord = (num += 1) + fullCoords[fullCoords.length - 1][sameAxis]) : (newCoord = fullCoords[fullCoords.length - 1][sameAxis] + (num += 1));
+        fullCoords.push(newCoord);
+    }
+    return fullCoords;
 }
 
 function checkForRed() {
@@ -329,47 +332,31 @@ function rotateShip(elmnt) {
     if (!(futureRight - 1 > board.right || futureBottom - 1 > board.bottom)) {
       elmnt.style.width = elmntRect.height + "px";
       elmnt.style.height = elmntRect.width + "px";
+      elmnt.dataset.coords = JSON.stringify(getShipCoords(elmnt));
       checkProximity(elmnt);
     }
   }
 }
 
 function checkProximity(elmnt) {
-  const elmntRect = elmnt.getBoundingClientRect();
+ const fleet = getDisplayFleetInfo();
+ let overlap;
 
-  const shipZones = getShipZones(elmnt);
+ for (const prop in fleet) {
+     if (fleet[prop].id !== elmnt.dataset.id) {
+         JSON.parse(elmnt.dataset.coords).forEach(coord => {
+            if (fleet[prop].coords.some(item => item == coord)) {
+                overlap = true;
+            };
+         });
+     }
+ }
 
-  for (const prop in shipZones) {
-    const topBound = shipZones[prop].top;
-    const leftBound = shipZones[prop].left;
-    const rightBound = shipZones[prop].right;
-    const bottomBound = shipZones[prop].bottom;
-
-    if (
-      (elmntRect.top < bottomBound &&
-        elmntRect.left < rightBound &&
-        elmntRect.top > topBound &&
-        elmntRect.left > leftBound) ||
-      (elmntRect.top < bottomBound &&
-        elmntRect.right < rightBound &&
-        elmntRect.top > topBound &&
-        elmntRect.right > leftBound) ||
-      (elmntRect.bottom < bottomBound &&
-        elmntRect.left < rightBound &&
-        elmntRect.bottom > topBound &&
-        elmntRect.left > leftBound) ||
-      (elmntRect.bottom < bottomBound &&
-        elmntRect.right < rightBound &&
-        elmntRect.bottom > topBound &&
-        elmntRect.right > leftBound)
-    ) {
-      elmnt.classList.add("invalid-pos");
-
-      break;
-    } else {
-      elmnt.classList.remove("invalid-pos");
-    }
-  }
+ if (overlap) {
+    elmnt.classList.add("invalid-pos");
+ } else {
+    elmnt.classList.remove("invalid-pos");
+ }
 }
 
 function getBorder() {
@@ -397,23 +384,6 @@ function getCellPositions() {
   return cellPositions;
 }
 
-function getShipZones(elmnt) {
-  const shipPositions = {};
-
-  playerArea.querySelectorAll(".ship").forEach((ship, index) => {
-    if (ship.dataset.id !== elmnt.dataset.id) {
-      const shipObj = {};
-      const shipDivPos = ship.getBoundingClientRect();
-      shipObj.top = shipDivPos.top;
-      shipObj.left = shipDivPos.left;
-      shipObj.right = shipDivPos.right;
-      shipObj.bottom = shipDivPos.bottom;
-      shipPositions[index] = shipObj;
-    }
-  });
-  return shipPositions;
-}
-
 function gridSnap(elmnt) {
   const cellPositions = getCellPositions(".player-board");
 
@@ -437,6 +407,7 @@ function gridSnap(elmnt) {
       elmnt.dataset.x = cellPositions[prop].coords[0];
       elmnt.dataset.y = cellPositions[prop].coords[1];
 
+      elmnt.dataset.coords = JSON.stringify(getShipCoords(elmnt))
       checkProximity(elmnt);
     }
   }

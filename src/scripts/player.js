@@ -47,8 +47,6 @@ function Player(name) {
       generateShipCoords("submarine", 3);
       generateShipCoords("destroyer", 2);
 
-      console.log(game.user.gameboard.fleet);
-
       function generateShipCoords(name, length) {
         const axis = self.getRandomInt(2);
 
@@ -78,6 +76,15 @@ function Player(name) {
         }
         self.gameboard.placeShip(name, coord);
       }
+    },
+
+    updateFleet(fleetObj) {
+        this.gameboard.fleet = [];
+        for (const prop in fleetObj) {
+            let name = fleetObj[prop].name;
+            let coords = fleetObj[prop].coords;
+            this.gameboard.placeShip(name, coords);
+        }
     },
 
     checkPreviousMoves(coord) {
