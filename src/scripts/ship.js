@@ -3,6 +3,7 @@ function Ship(name, coords) {
     hit(number) {
       if (this.coords.includes(number) && !this.hits.includes(number)) {
         this.hits.push(number);
+        this.isSunk();
       }
     },
 

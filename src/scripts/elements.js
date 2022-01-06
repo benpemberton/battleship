@@ -7,10 +7,12 @@ const nameInput = document.querySelector(".name-input");
 const nameSubmitBtn = document.querySelector(".name-submit");
 const nameInputDiv = document.querySelector(".name-input-container");
 const playerName = document.querySelector(".player-name");
+const compName = document.querySelector(".comp-name");
 const scoresBox = document.querySelector(".scores-box");
 const gridCell = document.querySelector(".grid-cell");
 const instructions = document.querySelector(".instructions");
 const playBtn = document.querySelector(".play");
+const replayBtn = document.querySelector(".replay");
 
 export {
   startBtn,
@@ -22,8 +24,10 @@ export {
   nameSubmitBtn,
   nameInputDiv,
   playerName,
+  compName,
   scoresBox,
   gridCell,
   instructions,
   playBtn,
+  replayBtn,
 };

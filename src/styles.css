@@ -130,6 +130,13 @@ table {
 
 /* MINE STARTS HERE */
 
+body {
+  background: linear-gradient(#e66465, #9198e5);
+  min-height: 700px;
+  height: 100vh;
+  font-family: Roboto Slab, Courier, sans-serif;
+}
+
 .title {
   margin: 2% auto;
   text-align: center;
@@ -139,15 +146,15 @@ table {
 .boards-container {
   display: flex;
   justify-content: space-around;
+  min-height: 420px;
+  height: 40vw;
 }
 
 .player-board,
 .comp-board {
   display: flex;
-  height: 35vw;
-  width: 35vw;
-  opacity: 0.3;
-  pointer-events: none;
+  height: 100%;
+  width: 32vw;
   flex-wrap: wrap;
 }
 
@@ -155,11 +162,11 @@ table {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   grid-template-rows: repeat(10, 1fr);
-  width: 80%;
+  width: 100%;
   height: 80%;
-  flex: 1 1 80%;
+  flex: 1 1 100%;
   gap: 3px;
-  background-color: rgb(255, 255, 255);
+  background-color: #815355;
 }
 
 .fleet {
@@ -171,23 +178,26 @@ table {
 }
 
 .grid-cell {
-  background-color: rgb(113, 146, 175);
+  background-color: #d3a588;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: background-color 0.2s ease;
 }
 
-.testdiv {
-  position: absolute;
-  width: 154px;
-  height: 50px;
-  background-color: red;
-  grid-column: 1/4;
-  grid-row: 1/2;
+.grid-cell .dot {
+  height: 30%;
+  width: 30%;
+}
+
+.grid-cell .cross {
+  height: 100%;
+  width: 100%;
 }
 
 .name-input-container {
   display: flex;
   justify-content: center;
-  pointer-events: none;
-  opacity: 0.3;
 }
 
 .start {
@@ -196,7 +206,8 @@ table {
   left: 50%;
 }
 
-.play {
+.play,
+.replay {
   position: absolute;
   top: 50%;
   left: 50%;
@@ -204,7 +215,7 @@ table {
 }
 
 .ship {
-  background-color: green;
+  background-color: #494850;
   transition: background-color 0.2s ease;
 }
 
@@ -212,19 +223,23 @@ table {
   background-color: red;
 }
 
-.ship-icon {
-  background-color: blue;
-  opacity: 0.5;
-}
-
 .comp-name,
 .player-name {
-  flex: 1 1 80%;
+  flex: 1 1 100%;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: grey;
-  color: white;
+  background-color: #494850;
+  color: rgb(231, 220, 220);
   border-radius: 10px;
   font-size: 2em;
+}
+
+.faded {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.sunk {
+  background-color: black;
 }

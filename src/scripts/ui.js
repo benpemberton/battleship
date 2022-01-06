@@ -1,4 +1,4 @@
-import { startGame, game, getRandomInt } from "./game";
+import { game, prepareGame, resetGame } from "./game";
 import {
   playerBoard,
   compBoard,
@@ -8,15 +8,19 @@ import {
   nameSubmitBtn,
   nameInputDiv,
   playerName,
+  compName,
   scoresBox,
   gridCell,
   instructions,
   playBtn,
+  replayBtn,
 } from "./elements";
+import { userTurn, compTurn } from "./userTurn";
+import dot from "./../dot.png";
+import cross from "./../cross.png";
 
 function populateBoard(player) {
-  const fleet = player.gameboard.fleet;
-  paintShips(fleet);
+  paintShips(player.gameboard.fleet);
 }
 
 function paintShips(fleet) {
@@ -32,7 +36,8 @@ function paintShips(fleet) {
 
     const firstCo = [];
 
-    const divWidth = document.querySelector(".grid-cell").offsetWidth;
+    const divWidth = document.querySelector(".grid-cell").offsetWidth + 1;
+    const divHeight = document.querySelector(".grid-cell").offsetHeight + 1;
 
     ship.coords.forEach((coord) => {
       firstCo.push(coord[0]);
@@ -40,10 +45,10 @@ function paintShips(fleet) {
 
     if (firstCo[0] === firstCo[1]) {
       div.style.width = divWidth + "px";
-      div.style.height = ship.length * divWidth + ship.length - 1 + "px";
+      div.style.height = ship.length * divHeight + (ship.length - 1) * 3 + "px";
     } else {
-      div.style.height = divWidth + "px";
-      div.style.width = ship.length * divWidth + ship.length - 1 +"px";
+      div.style.height = divHeight + "px";
+      div.style.width = ship.length * divWidth + (ship.length - 1) * 3 + "px";
     }
 
     for (const prop in cellPositions) {
@@ -65,31 +70,13 @@ function clearShips() {
   });
 }
 
-function renderFleet(player) {
-  let board = document.querySelector(player.selector);
-
-  player.gameboard.fleet.forEach((ship) => {
-    const shipDiv = document.createElement("div");
-    shipDiv.classList.add("ship-icon");
-    shipDiv.style.height = "5px";
-    shipDiv.style.width = ship.length * 5 + "px";
-
-    board.querySelector(`[data-length='${ship.length}']`).appendChild(shipDiv);
-  });
-}
-
-function activateElement(element) {
-  element.style.opacity = "1";
-  element.style.pointerEvents = "auto";
-}
-
-function deactivateElement(element) {
-  element.style.opacity = "0.3";
-  element.style.pointerEvents = "none";
+function repaintShips() {
+  clearShips();
+  paintShips(game.user.gameboard.fleet);
 }
 
 function userNameInput() {
-  activateElement(nameInputDiv);
+  nameInputDiv.classList.remove("faded");
   nameInput.style.boxShadow = "0px 0px 6px 3px black";
   nameSubmitBtn.addEventListener("click", () => {
     if (nameInput.value === "") {
@@ -99,14 +86,27 @@ function userNameInput() {
       p.textContent = nameInput.value;
       nameInput.value = null;
       nameInputDiv.style.display = "none";
-      gameSetUp();
+      prepareGame(nameInput.value);
+      displaySetUp();
     }
   });
 }
 
-function gameSetUp() {
+function displaySetUp() {
   displayScores();
+  initialBoardsDisplay();
   positionFleet();
+  playButton();
+  window.onresize = repaintShips;
+}
+
+function initialBoardsDisplay() {
+  compBoard.classList.remove("faded");
+  compName.classList.remove("faded");
+  compArea.classList.add("faded");
+  playerBoard.classList.remove("faded");
+  playerName.classList.remove("faded");
+  playerArea.classList.remove("faded");
 }
 
 function displayScores() {
@@ -115,10 +115,10 @@ function displayScores() {
 }
 
 function positionFleet() {
-  activateElement(playerArea);
-  instrMsg();
+  instructions.innerHTML =
+    "<p>Arrange your ships in preparation for a naval battle!</p> <p>The ships must all be green before you can start the game.</p> <p>(Double-click to rotate a ship.)</p>";
+
   populateBoard(game.user);
-  playButton();
 }
 
 function playButton() {
@@ -129,66 +129,185 @@ function playButton() {
 function playBtnHandler() {
   if (!checkForRed()) {
     game.user.updateFleet(getDisplayFleetInfo());
-    console.log(game.user.gameboard.fleet);
+    prepareCompBoard();
+    clearShips();
+
+    window.onresize = null;
+
+    console.log(game.comp.gameboard.fleet);
+
+    decideFirstTurn();
+
+    playBtn.style.display = "none";
   } else if (checkForRed()) {
     alert("All ships must be green!");
   }
 }
 
-function getDisplayFleetInfo() {
-    const ships = document.querySelectorAll(".ship");
-    const fleetCoords = {};
-  
-    ships.forEach((ship, index) => {      
-        const shipObj = {};
-        shipObj.coords = JSON.parse(ship.dataset.coords);
-        shipObj.id = ship.dataset.id;
-        shipObj.name = ship.dataset.name;
-        fleetCoords[index] = shipObj;
-    });
+function replayButton() {
+  replayBtn.style.display = "block";
+  replayBtn.addEventListener("click", replayBtnHandler);
+}
 
-    return fleetCoords;
+function replayBtnHandler() {
+  clearBoards();
+  resetGame();
+  displaySetUp();
+
+  replayBtn.style.display = "none";
+}
+
+function decideFirstTurn() {
+  if (game.lastWinner === "computer") {
+    playerBoard.classList.remove("faded");
+    compArea.classList.remove("faded");
+    compBoard.classList.add("faded");
+    compName.classList.remove("faded");
+    playerName.classList.add("faded");
+
+    instructions.innerHTML =
+      "<p>The computer is choosing where to attack...</p>";
+
+    compArea.style.pointerEvents = "none";
+
+    compTurn();
+  } else {
+    playerBoard.classList.toggle("faded");
+    compArea.classList.toggle("faded");
+    compName.classList.add("faded");
+
+    instructions.innerHTML = "<p>Pick an enemy position to attack.</p>";
+
+    compBoard.style.pointerEvents = "auto";
   }
+}
+
+function clearBoards() {
+  const cells = document.querySelectorAll(".grid-cell");
+
+  cells.forEach((cell) => {
+    if (cell.querySelector("img")) {
+      cell.querySelector("img").remove();
+    }
+    if (cell.classList.contains("sunk")) {
+      cell.classList.remove("sunk");
+    }
+  });
+}
+
+function switchAreaFade() {
+  playerBoard.classList.toggle("faded");
+  compBoard.classList.toggle("faded");
+  playerName.classList.toggle("faded");
+  compName.classList.toggle("faded");
+}
+
+function switchPlayerTurn(player) {
+  if (player === "comp") {
+    setTimeout(() => {
+      switchAreaFade();
+      instructions.innerHTML =
+        "<p>The computer is choosing where to attack...</p>";
+      compTurn();
+    }, 1500);
+  } else {
+    setTimeout(() => {
+      switchAreaFade();
+      instructions.innerHTML = "<p>Pick an enemy position to attack.</p>";
+      compBoard.style.pointerEvents = "auto";
+    }, 1500);
+  }
+}
+
+function showMissedCell(cell) {
+  const img = document.createElement("img");
+  img.classList.add("dot");
+  img.src = dot;
+  cell.appendChild(img);
+}
+
+function showStruckCell(cell) {
+  const img = document.createElement("img");
+  img.classList.add("cross");
+  img.src = cross;
+  cell.appendChild(img);
+}
+
+function highlightSunkShip(ship, board) {
+  ship.coords.forEach((coord) => {
+    const cell = board.querySelector(`[data-xy='${coord}']`);
+    cell.classList.add("sunk");
+  });
+}
+
+function prepareCompBoard() {
+  const cells = compBoard.querySelectorAll(".grid-cell");
+  cells.forEach((cell) => {
+    cell.addEventListener("click", startUserTurn, { once: true });
+  });
+}
+
+function startUserTurn(e) {
+  userTurn(e.target);
+  compBoard.style.pointerEvents = "none";
+}
+
+function getDisplayFleetInfo() {
+  const ships = document.querySelectorAll(".ship");
+  const fleetCoords = {};
+
+  ships.forEach((ship, index) => {
+    const shipObj = {};
+    shipObj.coords = JSON.parse(ship.dataset.coords);
+    shipObj.id = ship.dataset.id;
+    shipObj.name = ship.dataset.name;
+    fleetCoords[index] = shipObj;
+  });
+
+  return fleetCoords;
+}
 
 function getShipCoords(elmnt) {
-    const cells = getCellPositions();
-    const ship = elmnt.getBoundingClientRect();
-    let coords;
+  const cells = getCellPositions();
+  const ship = elmnt.getBoundingClientRect();
+  let coords;
 
-    for (const prop in cells) {
-        if (
-        ship.left === cells[prop].screenPos.left &&
-        ship.top === cells[prop].screenPos.top
-        ) {
-        coords = cells[prop].coords;
-        break;
-        }
+  for (const prop in cells) {
+    if (
+      ship.left === cells[prop].screenPos.left &&
+      ship.top === cells[prop].screenPos.top
+    ) {
+      coords = cells[prop].coords;
+      break;
     }
+  }
 
-    const cellWidth = gridCell.offsetWidth;
-    let axis;
-    let length;
-    let fullCoords = [coords];
+  const cellWidth = gridCell.offsetWidth;
+  let axis;
+  let length;
+  let fullCoords = [coords];
 
-    if (ship.height > ship.width) {
-        axis = 1;
-        length = Math.round(ship.height / cellWidth);
-    } else {
-        axis = 0;
-        length = Math.round(ship.width / cellWidth);
-    }
+  if (ship.height > ship.width) {
+    axis = 1;
+    length = Math.round(ship.height / cellWidth);
+  } else {
+    axis = 0;
+    length = Math.round(ship.width / cellWidth);
+  }
 
-    let sameAxis;
+  let sameAxis;
 
-    axis == 0 ? sameAxis = 1 : sameAxis = 0;
+  axis == 0 ? (sameAxis = 1) : (sameAxis = 0);
 
-    for (let i = 0; i < length - 1; i++) {
-        let newCoord;
-        let num = Number(fullCoords[fullCoords.length - 1][axis]);
-        axis == 0 ? (newCoord = (num += 1) + fullCoords[fullCoords.length - 1][sameAxis]) : (newCoord = fullCoords[fullCoords.length - 1][sameAxis] + (num += 1));
-        fullCoords.push(newCoord);
-    }
-    return fullCoords;
+  for (let i = 0; i < length - 1; i++) {
+    let newCoord;
+    let num = Number(fullCoords[fullCoords.length - 1][axis]);
+    axis == 0
+      ? (newCoord = (num += 1) + fullCoords[fullCoords.length - 1][sameAxis])
+      : (newCoord = fullCoords[fullCoords.length - 1][sameAxis] + (num += 1));
+    fullCoords.push(newCoord);
+  }
+  return fullCoords;
 }
 
 function checkForRed() {
@@ -199,14 +318,6 @@ function checkForRed() {
   } else {
     return false;
   }
-}
-
-function instrMsg() {
-  instructions.innerHTML =
-    "<p>Arrange your ships in preparation for a naval battle!</p>";
-  instructions.innerHTML +=
-    "<p>The ships must all be green before you can start the game.</p>";
-  instructions.innerHTML += "<p>(Double-click to rotate a ship.)</p>";
 }
 
 function dragElement(elmnt) {
@@ -339,24 +450,24 @@ function rotateShip(elmnt) {
 }
 
 function checkProximity(elmnt) {
- const fleet = getDisplayFleetInfo();
- let overlap;
+  const fleet = getDisplayFleetInfo();
+  let overlap;
 
- for (const prop in fleet) {
-     if (fleet[prop].id !== elmnt.dataset.id) {
-         JSON.parse(elmnt.dataset.coords).forEach(coord => {
-            if (fleet[prop].coords.some(item => item == coord)) {
-                overlap = true;
-            };
-         });
-     }
- }
+  for (const prop in fleet) {
+    if (fleet[prop].id !== elmnt.dataset.id) {
+      JSON.parse(elmnt.dataset.coords).forEach((coord) => {
+        if (fleet[prop].coords.some((item) => item == coord)) {
+          overlap = true;
+        }
+      });
+    }
+  }
 
- if (overlap) {
+  if (overlap) {
     elmnt.classList.add("invalid-pos");
- } else {
+  } else {
     elmnt.classList.remove("invalid-pos");
- }
+  }
 }
 
 function getBorder() {
@@ -375,6 +486,7 @@ function getCellPositions() {
   const cells = playerBoard
     .querySelectorAll(".grid-cell")
     .forEach((cell, index) => {
+      console.log(cell.offsetTop);
       const cellObj = {};
       cellObj.screenPos = cell.getBoundingClientRect();
       cellObj.coords = cell.dataset.xy;
@@ -407,7 +519,7 @@ function gridSnap(elmnt) {
       elmnt.dataset.x = cellPositions[prop].coords[0];
       elmnt.dataset.y = cellPositions[prop].coords[1];
 
-      elmnt.dataset.coords = JSON.stringify(getShipCoords(elmnt))
+      elmnt.dataset.coords = JSON.stringify(getShipCoords(elmnt));
       checkProximity(elmnt);
     }
   }
@@ -415,10 +527,13 @@ function gridSnap(elmnt) {
 
 export {
   populateBoard,
-  activateElement,
   dragElement,
-  renderFleet,
   userNameInput,
   paintShips,
   clearShips,
+  showMissedCell,
+  showStruckCell,
+  switchPlayerTurn,
+  highlightSunkShip,
+  replayButton,
 };

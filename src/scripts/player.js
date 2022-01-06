@@ -5,13 +5,13 @@ function Player(name) {
   const proto = {
     demo: [],
 
-    sendAttack() {
+    compAttack() {
       let coord = this.getRandomCoord(10);
 
       if (this.checkPreviousMoves(coord)) {
-        this.sendAttack();
+        return this.compAttack();
       } else {
-        game.user.gameboard.receiveAttack(coord);
+        return coord;
       }
     },
 
@@ -79,12 +79,12 @@ function Player(name) {
     },
 
     updateFleet(fleetObj) {
-        this.gameboard.fleet = [];
-        for (const prop in fleetObj) {
-            let name = fleetObj[prop].name;
-            let coords = fleetObj[prop].coords;
-            this.gameboard.placeShip(name, coords);
-        }
+      this.gameboard.fleet = [];
+      for (const prop in fleetObj) {
+        let name = fleetObj[prop].name;
+        let coords = fleetObj[prop].coords;
+        this.gameboard.placeShip(name, coords);
+      }
     },
 
     checkPreviousMoves(coord) {

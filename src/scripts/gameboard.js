@@ -23,19 +23,22 @@ function Gameboard() {
 
     receiveAttack(pos) {
       let hit = false;
+      let ship;
 
       for (let i = 0; i <= this.fleet.length - 1; i++) {
         if (this.fleet[i].coords.includes(pos)) {
           this.fleet[i].hit(pos);
           hit = true;
+          ship = this.fleet[i];
           break;
         }
       }
 
-      if (!hit) {
+      if (hit) {
+        return ship;
+      } else {
         this.missedShots.push(pos);
       }
-      this.demo = pos;
     },
 
     checkFleetStatus() {
@@ -47,9 +50,15 @@ function Gameboard() {
         }
       });
 
-      // if (this.fleetStatus.length === this.fleet.length) {
-      //   alert("everything is sunk");
-      // }
+      if (this.fleetStatus.length === this.fleet.length) {
+        return true;
+      }
+    },
+
+    newRound() {
+      this.fleet = [];
+      this.missedShots = [];
+      this.fleetStatus = [];
     },
   };
 }
