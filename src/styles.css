@@ -138,9 +138,10 @@ body {
 }
 
 .title {
-  margin: 2% auto;
+  margin: 5% auto;
   text-align: center;
-  font-size: 2em;
+  font-size: 4em;
+  color: rgb(64, 47, 70);
 }
 
 .boards-container {
@@ -152,6 +153,7 @@ body {
 
 .player-board,
 .comp-board {
+  /* position: relative; */
   display: flex;
   height: 100%;
   width: 32vw;
@@ -173,8 +175,23 @@ body {
   flex: 1 20%;
 }
 
-.scores-box {
+.info {
   width: 15%;
+  display: flex;
+  flex-direction: column;
+}
+
+.scores-box {
+  font-size: 3em;
+  text-align: center;
+}
+
+.instructions {
+  background-color: RGBA(245, 243, 239, 0.4);
+  text-align: center;
+  margin-top: 30%;
+  border-radius: 5px;
+  padding: 5% 5%;
 }
 
 .grid-cell {
@@ -195,28 +212,37 @@ body {
   width: 100%;
 }
 
-.name-input-container {
+.buttons {
+  margin-top: auto;
+  margin-bottom: 10%;
   display: flex;
   justify-content: center;
+  align-items: center;
 }
 
-.start {
-  position: absolute;
-  top: 50%;
-  left: 50%;
+button {
+  background-color: RGBA(245, 243, 239, 0.7);
+  height: 3em;
+  width: 7em;
+  border-radius: 5px;
+  font-family: Roboto Slab, Courier, sans-serif;
+  font-size: 1em;
 }
 
 .play,
 .replay {
-  position: absolute;
-  top: 50%;
-  left: 50%;
   display: none;
 }
 
 .ship {
+  position: absolute;
   background-color: #494850;
   transition: background-color 0.2s ease;
+}
+
+.selected {
+  background-color: #494850;
+  opacity: 0.5;
 }
 
 .invalid-pos {

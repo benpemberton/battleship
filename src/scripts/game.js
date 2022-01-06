@@ -7,8 +7,8 @@ const game = {
   lastWinner: null,
 };
 
-function prepareGame(username) {
-  game.user = Player(username);
+function prepareGame() {
+  game.user = Player("human");
   game.comp = Player("computer");
   game.user.gameboard = Gameboard();
   game.comp.gameboard = Gameboard();

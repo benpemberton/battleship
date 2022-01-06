@@ -19,25 +19,20 @@ import { userTurn, compTurn } from "./userTurn";
 import dot from "./../dot.png";
 import cross from "./../cross.png";
 
-function populateBoard(player) {
-  paintShips(player.gameboard.fleet);
-}
-
 function paintShips(fleet) {
   const cellPositions = getCellPositions();
 
   fleet.forEach((ship, index) => {
     const div = document.createElement("div");
     div.classList.add("ship");
-    div.style.position = "absolute";
     div.dataset.id = index;
     div.dataset.coords = JSON.stringify(ship.coords);
     div.dataset.name = ship.name;
 
     const firstCo = [];
 
-    const divWidth = document.querySelector(".grid-cell").offsetWidth + 1;
-    const divHeight = document.querySelector(".grid-cell").offsetHeight + 1;
+    const divWidth = document.querySelector(".grid-cell").offsetWidth + 0.5;
+    const divHeight = document.querySelector(".grid-cell").offsetHeight + 0.5;
 
     ship.coords.forEach((coord) => {
       firstCo.push(coord[0]);
@@ -53,8 +48,8 @@ function paintShips(fleet) {
 
     for (const prop in cellPositions) {
       if (cellPositions[prop].coords == ship.coords[0]) {
-        div.style.top = cellPositions[prop].screenPos.top + "px";
-        div.style.left = cellPositions[prop].screenPos.left + "px";
+        div.style.top = cellPositions[prop].top + "px";
+        div.style.left = cellPositions[prop].left + "px";
       }
     }
     playerArea.appendChild(div);
@@ -73,23 +68,6 @@ function clearShips() {
 function repaintShips() {
   clearShips();
   paintShips(game.user.gameboard.fleet);
-}
-
-function userNameInput() {
-  nameInputDiv.classList.remove("faded");
-  nameInput.style.boxShadow = "0px 0px 6px 3px black";
-  nameSubmitBtn.addEventListener("click", () => {
-    if (nameInput.value === "") {
-      nameInput.style.backgroundColor = "#E8B4DC";
-    } else {
-      const p = playerName.querySelector("p");
-      p.textContent = nameInput.value;
-      nameInput.value = null;
-      nameInputDiv.style.display = "none";
-      prepareGame(nameInput.value);
-      displaySetUp();
-    }
-  });
 }
 
 function displaySetUp() {
@@ -116,9 +94,18 @@ function displayScores() {
 
 function positionFleet() {
   instructions.innerHTML =
-    "<p>Arrange your ships in preparation for a naval battle!</p> <p>The ships must all be green before you can start the game.</p> <p>(Double-click to rotate a ship.)</p>";
+    "<p>Arrange your ships in preparation for a naval battle!</p></br><p>Double-click to rotate a ship.</p></br><p>The ships must not overlap.</p>";
 
-  populateBoard(game.user);
+  paintShips(game.user.gameboard.fleet);
+}
+
+function showSelectedShips() {
+  game.user.gameboard.fleet.forEach((ship) => {
+    ship.coords.forEach((coord) => {
+      const cell = playerBoard.querySelector(`[data-xy='${coord}']`);
+      cell.classList.add("selected");
+    });
+  });
 }
 
 function playButton() {
@@ -130,17 +117,16 @@ function playBtnHandler() {
   if (!checkForRed()) {
     game.user.updateFleet(getDisplayFleetInfo());
     prepareCompBoard();
+    showSelectedShips();
     clearShips();
 
     window.onresize = null;
-
-    console.log(game.comp.gameboard.fleet);
 
     decideFirstTurn();
 
     playBtn.style.display = "none";
   } else if (checkForRed()) {
-    alert("All ships must be green!");
+    alert("No overlapping ships!");
   }
 }
 
@@ -191,6 +177,9 @@ function clearBoards() {
     }
     if (cell.classList.contains("sunk")) {
       cell.classList.remove("sunk");
+    }
+    if (cell.classList.contains("selected")) {
+      cell.classList.remove("selected");
     }
   });
 }
@@ -269,14 +258,14 @@ function getDisplayFleetInfo() {
 
 function getShipCoords(elmnt) {
   const cells = getCellPositions();
-  const ship = elmnt.getBoundingClientRect();
+  const shipTop = elmnt.offsetTop;
+  const shipLeft = elmnt.offsetLeft;
+  const shipHeight = elmnt.offsetHeight;
+  const shipWidth = elmnt.offsetWidth;
   let coords;
 
   for (const prop in cells) {
-    if (
-      ship.left === cells[prop].screenPos.left &&
-      ship.top === cells[prop].screenPos.top
-    ) {
+    if (shipLeft === cells[prop].left && shipTop === cells[prop].top) {
       coords = cells[prop].coords;
       break;
     }
@@ -287,12 +276,12 @@ function getShipCoords(elmnt) {
   let length;
   let fullCoords = [coords];
 
-  if (ship.height > ship.width) {
+  if (shipHeight > shipWidth) {
     axis = 1;
-    length = Math.round(ship.height / cellWidth);
+    length = Math.round(shipHeight / cellWidth);
   } else {
     axis = 0;
-    length = Math.round(ship.width / cellWidth);
+    length = Math.round(shipWidth / cellWidth);
   }
 
   let sameAxis;
@@ -407,15 +396,18 @@ function dragElement(elmnt) {
   }
 
   function checkPosition(elmnt) {
-    const elmntRect = elmnt.getBoundingClientRect();
+    const elmntTop = elmnt.offsetTop;
+    const elmntLeft = elmnt.offsetLeft;
+    const elmntRight = elmntLeft + elmnt.offsetWidth;
+    const elmntBottom = elmntTop + elmnt.offsetHeight;
 
-    if (elmntRect.top < board.top) {
+    if (elmntTop < board.top) {
       return "top";
-    } else if (elmntRect.left < board.left) {
+    } else if (elmntLeft < board.left) {
       return "left";
-    } else if (elmntRect.right > board.right) {
+    } else if (elmntRight > board.right) {
       return "right";
-    } else if (elmntRect.bottom > board.bottom) {
+    } else if (elmntBottom > board.bottom) {
       return "bottom";
     } else {
       return false;
@@ -471,12 +463,11 @@ function checkProximity(elmnt) {
 }
 
 function getBorder() {
-  const info = playerBoard.getBoundingClientRect();
   return {
-    top: Math.round(info.top),
-    left: Math.round(info.left),
-    right: Math.round(info.right),
-    bottom: Math.round(info.bottom),
+    top: playerArea.offsetTop,
+    left: playerArea.offsetLeft,
+    right: playerArea.offsetLeft + playerBoard.offsetWidth,
+    bottom: playerArea.offsetTop + playerBoard.offsetHeight,
   };
 }
 
@@ -486,9 +477,9 @@ function getCellPositions() {
   const cells = playerBoard
     .querySelectorAll(".grid-cell")
     .forEach((cell, index) => {
-      console.log(cell.offsetTop);
       const cellObj = {};
-      cellObj.screenPos = cell.getBoundingClientRect();
+      cellObj.top = cell.offsetTop;
+      cellObj.left = cell.offsetLeft;
       cellObj.coords = cell.dataset.xy;
       cellPositions[index] = cellObj;
     });
@@ -496,25 +487,43 @@ function getCellPositions() {
   return cellPositions;
 }
 
-function gridSnap(elmnt) {
-  const cellPositions = getCellPositions(".player-board");
+// function getCellPositions() {
+//   const cellPositions = {};
 
-  const elmntPos = elmnt.getBoundingClientRect();
+//   const cells = playerBoard
+//     .querySelectorAll(".grid-cell")
+//     .forEach((cell, index) => {
+//       const cellObj = {};
+//       cellObj.screenPos = cell.getBoundingClientRect();
+//       cellObj.coords = cell.dataset.xy;
+//       cellPositions[index] = cellObj;
+//     });
+
+//   return cellPositions;
+// }
+
+function gridSnap(elmnt) {
+  const cellPositions = getCellPositions();
+
+  const elmntTop = elmnt.offsetTop;
+  const elmntLeft = elmnt.offsetLeft;
+
+  const divWidth = document.querySelector(".grid-cell").offsetWidth;
 
   for (const prop in cellPositions) {
-    const xLower = cellPositions[prop].screenPos.x - 25;
-    const yLower = cellPositions[prop].screenPos.y - 25;
-    const xLimit = cellPositions[prop].screenPos.x + 25;
-    const yLimit = cellPositions[prop].screenPos.y + 25;
+    const xLower = cellPositions[prop].left - divWidth / 2;
+    const yLower = cellPositions[prop].top - divWidth / 2;
+    const xUpper = cellPositions[prop].left + divWidth / 2;
+    const yUpper = cellPositions[prop].top + divWidth / 2;
 
     if (
-      elmntPos.x >= xLower &&
-      elmntPos.y >= yLower &&
-      elmntPos.x <= xLimit &&
-      elmntPos.y <= yLimit
+      elmntLeft >= xLower &&
+      elmntTop >= yLower &&
+      elmntLeft <= xUpper &&
+      elmntTop <= yUpper
     ) {
-      elmnt.style.top = cellPositions[prop].screenPos.top + "px";
-      elmnt.style.left = cellPositions[prop].screenPos.left + "px";
+      elmnt.style.top = cellPositions[prop].top + "px";
+      elmnt.style.left = cellPositions[prop].left + "px";
 
       elmnt.dataset.x = cellPositions[prop].coords[0];
       elmnt.dataset.y = cellPositions[prop].coords[1];
@@ -526,9 +535,7 @@ function gridSnap(elmnt) {
 }
 
 export {
-  populateBoard,
   dragElement,
-  userNameInput,
   paintShips,
   clearShips,
   showMissedCell,
@@ -536,4 +543,5 @@ export {
   switchPlayerTurn,
   highlightSunkShip,
   replayButton,
+  displaySetUp,
 };
