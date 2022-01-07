@@ -1,6 +1,6 @@
 import "./../styles.css";
-import { game, prepareGame } from "./game";
-import { startBtn, playerBoard, compBoard } from "./elements";
+import { prepareGame } from "./game";
+import { startBtn } from "./elements";
 import { displaySetUp } from "./ui";
 
 startBtn.addEventListener("click", () => {

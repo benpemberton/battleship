@@ -11,12 +11,6 @@ function Gameboard() {
     placeShip(name, coords) {
       const newShip = Ship(name, coords);
 
-      // newShip.coords.forEach((coord) => {
-      //   const posArray = Object.keys(this.boardPositions);
-      //   const position = posArray.find((pos) => pos === coord);
-      //   this.boardPositions[position] = true;
-      // });
-
       this.fleet.push(newShip);
       this.fleet[this.fleet.length - 1].id = this.fleet.length - 1;
     },

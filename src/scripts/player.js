@@ -1,5 +1,4 @@
 import { game } from "./game";
-import Gameboard from "./gameboard";
 
 function Player(name) {
   const proto = {

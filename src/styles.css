@@ -132,51 +132,64 @@ table {
 
 body {
   background: linear-gradient(#e66465, #9198e5);
-  min-height: 700px;
   height: 100vh;
+  min-width: 1200px;
   font-family: Roboto Slab, Courier, sans-serif;
 }
 
 .title {
-  margin: 5% auto;
+  padding-top: 2%;
+  padding-bottom: 5%;
   text-align: center;
   font-size: 4em;
   color: rgb(64, 47, 70);
 }
 
 .boards-container {
-  display: flex;
-  justify-content: space-around;
+  display: grid;
+  grid-template-columns: 40% 20% 40%;
+  grid-template-rows: 1fr 1fr;
   min-height: 420px;
-  height: 40vw;
+  max-height: 600px;
+  height: 80%;
 }
 
-.player-board,
 .comp-board {
-  /* position: relative; */
-  display: flex;
-  height: 100%;
-  width: 32vw;
-  flex-wrap: wrap;
+  margin: 0 auto;
+  height: 25vw;
+  width: 25vw;
+  grid-column: 3/4;
+  grid-row: 1/2;
 }
+
+.player-board {
+  margin: 0 auto;
+  height: 25vw;
+  width: 25vw;
+  grid-column: 1/2;
+  grid-row: 1/2;
+}
+
+/* .board-wrap:after {
+  content: "";
+  display: block;
+  padding-bottom: 100%;
+} */
 
 .gameboard {
   display: grid;
   grid-template-columns: repeat(10, 1fr);
   grid-template-rows: repeat(10, 1fr);
+  height: 100%;
   width: 100%;
-  height: 80%;
-  flex: 1 1 100%;
+  min-width: 300px;
+  min-height: 300px;
   gap: 3px;
   background-color: #815355;
 }
 
-.fleet {
-  flex: 1 20%;
-}
-
 .info {
-  width: 15%;
+  grid-column: 2/3;
   display: flex;
   flex-direction: column;
 }
@@ -187,6 +200,7 @@ body {
 }
 
 .instructions {
+  display: none;
   background-color: RGBA(245, 243, 239, 0.4);
   text-align: center;
   margin-top: 30%;
@@ -213,11 +227,11 @@ body {
 }
 
 .buttons {
-  margin-top: auto;
-  margin-bottom: 10%;
+  margin: auto;
   display: flex;
   justify-content: center;
   align-items: center;
+  grid-row: 2/3;
 }
 
 button {
@@ -249,9 +263,22 @@ button {
   background-color: red;
 }
 
+.comp-name {
+  grid-column: 3/4;
+  grid-row: 2/3;
+}
+
+.player-name {
+  grid-column: 1/2;
+  grid-row: 2/3;
+}
+
 .comp-name,
 .player-name {
-  flex: 1 1 100%;
+  margin: auto;
+  padding: 3% 0;
+  width: 25vw;
+  min-width: 300px;
   display: flex;
   justify-content: center;
   align-items: center;
